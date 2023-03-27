@@ -32,3 +32,32 @@ main().catch(err => console.log(err));
 async function main() {
   await mongoose.connect("mongodb://127.0.0.1/userDB", {useNewUrlParser: true});
 }
+const userSchema = new mongoose.Schema({  //New Schema
+  username: String,
+  password: String,
+  googleId: String
+});
+
+userSchema.plugin(passportLocalMongoose); //
+
+const User = new mongoose.model("User", userSchema); //New model User
+
+
+//configure passport local strategy
+passport.use(new LocalStrategy(
+    function(username, password, done) {
+      User.findOne({ username: username })
+      .then((founduser)=>{
+        if(!founduser){return done(null, false);}
+
+        bcrypt.compare(password,founduser.password, (err, result) => {
+            if (err){return done(err);}
+            if (result) {return done(null,founduser);}
+            return done (null,false);
+        });
+      })
+      .catch((err)=>{
+        return done(err);
+      })
+    }
+));
