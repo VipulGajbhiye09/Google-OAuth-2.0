@@ -17,3 +17,18 @@ app.use(express.static('public'));
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.set("view engine", "ejs");
+
+app.use(session({
+  secret: "Our little secret.",
+  resave: false,
+  saveUninitialized: true,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+main().catch(err => console.log(err));
+
+async function main() {
+  await mongoose.connect("mongodb://127.0.0.1/userDB", {useNewUrlParser: true});
+}
